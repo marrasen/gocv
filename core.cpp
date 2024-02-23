@@ -7,8 +7,21 @@ Mat Mat_New() {
 }
 
 // Mat_NewWithSize creates a new Mat with a specific size dimension and number of channels.
-Mat Mat_NewWithSize(int rows, int cols, int type) {
-    return new cv::Mat(rows, cols, type, 0.0);
+Mat Mat_NewWithSize(int rows, int cols, int type, char** errMsg) {
+    std::string error;
+    try {
+        return new cv::Mat(rows, cols, type, 0.0);
+    } catch (const std::exception& e) {
+        error = e.what();
+    } catch (...) {
+        error = "Caught unknown exception";
+    }
+
+    // If an error occurred, copy the error message to errMsg
+    if (!error.empty()) {
+        *errMsg = strdup(error.c_str());
+    }
+    return new cv::Mat();
 }
 
 // Mat_NewWithSizes creates a new Mat with specific dimension sizes and number of channels.
@@ -81,8 +94,20 @@ Mat Mat_FromPtr(Mat m, int rows, int cols, int type, int prow, int pcol) {
 }
 
 // Mat_Close deletes an existing Mat
-void Mat_Close(Mat m) {
-    delete m;
+void Mat_Close(Mat m, char** errMsg) {
+    std::string error;
+    try {
+        delete m;
+    } catch (const std::exception& e) {
+        error = e.what();
+    } catch (...) {
+        error = "Caught unknown exception";
+    }
+
+    // If an error occurred, copy the error message to errMsg
+    if (!error.empty()) {
+        *errMsg = strdup(error.c_str());
+    }
 }
 
 // Mat_Empty tests if a Mat is empty

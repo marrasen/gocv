@@ -13,7 +13,7 @@ func FP16BlobFromImage(img Mat, scaleFactor float32, size image.Point, mean floa
 	width := float32(img.Cols())
 	height := float32(img.Rows())
 
-	square := NewMatWithSize(size.Y, size.X, img.Type())
+	square, _ := NewMatWithSize(size.Y, size.X, img.Type())
 	defer square.Close()
 
 	maxDim := height

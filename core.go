@@ -192,8 +192,16 @@ func NewMat() Mat {
 }
 
 // NewMatWithSize returns a new Mat with a specific size and type.
-func NewMatWithSize(rows int, cols int, mt MatType) Mat {
-	return newMat(C.Mat_NewWithSize(C.int(rows), C.int(cols), C.int(mt)))
+func NewMatWithSize(rows int, cols int, mt MatType) (Mat, error) {
+	var errMsg *C.char
+	mat := newMat(C.Mat_NewWithSize(C.int(rows), C.int(cols), C.int(mt), &errMsg))
+	if errMsg != nil {
+		err := errors.New("NewMatWithSize encountered exception in external code: " + C.GoString(errMsg))
+		C.free(unsafe.Pointer(errMsg))
+		return mat, err
+	}
+
+	return mat, nil
 }
 
 // NewMatWithSizes returns a new multidimensional Mat with a specific size and type.

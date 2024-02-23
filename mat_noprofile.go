@@ -8,6 +8,10 @@ package gocv
 #include "core.h"
 */
 import "C"
+import (
+	"errors"
+	"unsafe"
+)
 
 // addMatToProfile does nothing if matprofile tag is not set.
 func addMatToProfile(p C.Mat) {
@@ -21,8 +25,14 @@ func newMat(p C.Mat) Mat {
 
 // Close the Mat object.
 func (m *Mat) Close() error {
-	C.Mat_Close(m.p)
+	var errMsg *C.char
+	C.Mat_Close(m.p, &errMsg)
 	m.p = nil
 	m.d = nil
+	if errMsg != nil {
+		err := errors.New("Close encountered exception in external code: " + C.GoString(errMsg))
+		C.free(unsafe.Pointer(errMsg))
+		return err
+	}
 	return nil
 }

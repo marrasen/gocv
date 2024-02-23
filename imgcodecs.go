@@ -6,6 +6,7 @@ package gocv
 */
 import "C"
 import (
+	"errors"
 	"unsafe"
 )
 
@@ -198,7 +199,15 @@ func IMEncode(fileExt FileExt, img Mat) (buf *NativeByteBuffer, err error) {
 	defer C.free(unsafe.Pointer(cfileExt))
 
 	buffer := newNativeByteBuffer()
-	C.Image_IMEncode(cfileExt, img.Ptr(), buffer.nativePointer())
+
+	var errMsg *C.char
+	C.Image_IMEncode(cfileExt, img.Ptr(), buffer.nativePointer(), &errMsg)
+	if errMsg != nil {
+		err := errors.New("IMEncode encountered exception in external code: " + C.GoString(errMsg))
+		C.free(unsafe.Pointer(errMsg))
+		return buffer, err
+	}
+
 	return buffer, nil
 }
 
@@ -227,7 +236,13 @@ func IMEncodeWithParams(fileExt FileExt, img Mat, params []int) (buf *NativeByte
 	paramsVector.length = (C.int)(len(cparams))
 
 	b := newNativeByteBuffer()
-	C.Image_IMEncode_WithParams(cfileExt, img.Ptr(), paramsVector, b.nativePointer())
+	var errMsg *C.char
+	C.Image_IMEncode_WithParams(cfileExt, img.Ptr(), paramsVector, b.nativePointer(), &errMsg)
+	if errMsg != nil {
+		err := errors.New("IMEncodeWithParams encountered exception in external code: " + C.GoString(errMsg))
+		C.free(unsafe.Pointer(errMsg))
+		return b, err
+	}
 	return b, nil
 }
 
@@ -243,7 +258,15 @@ func IMDecode(buf []byte, flags IMReadFlag) (Mat, error) {
 	if err != nil {
 		return Mat{}, err
 	}
-	return newMat(C.Image_IMDecode(*data, C.int(flags))), nil
+	var errMsg *C.char
+	mat := newMat(C.Image_IMDecode(*data, C.int(flags), &errMsg))
+	if errMsg != nil {
+		err := errors.New("IMDecode encountered exception in external code: " + C.GoString(errMsg))
+		C.free(unsafe.Pointer(errMsg))
+		return mat, err
+	}
+
+	return mat, nil
 }
 
 // IMDecodeIntoMat reads an image from a buffer in memory into a matrix.

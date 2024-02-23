@@ -13,10 +13,10 @@ extern "C" {
 Mat Image_IMRead(const char* filename, int flags);
 bool Image_IMWrite(const char* filename, Mat img);
 bool Image_IMWrite_WithParams(const char* filename, Mat img, IntVector params);
-void Image_IMEncode(const char* fileExt, Mat img, void* vector);
+void Image_IMEncode(const char* fileExt, Mat img, void* vector, char** errMsg);
 
-void Image_IMEncode_WithParams(const char* fileExt, Mat img, IntVector params, void* vector);
-Mat Image_IMDecode(ByteArray buf, int flags);
+void Image_IMEncode_WithParams(const char* fileExt, Mat img, IntVector params, void* vector, char** errMsg);
+Mat Image_IMDecode(ByteArray buf, int flags, char** errMsg);
 void Image_IMDecodeIntoMat(ByteArray buf, int flag, Mat dest);
 
 #ifdef __cplusplus
